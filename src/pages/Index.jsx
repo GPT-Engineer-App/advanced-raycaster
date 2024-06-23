@@ -49,6 +49,8 @@ const Index = () => {
     { type: 'damage', x: 350, y: 350, value: 2, duration: 5000 },
   ]);
 
+  const [score, setScore] = useState(0);
+
   const backgroundMusicHowl = new Howl({ src: [backgroundMusic], loop: true, volume: 0.5 });
   const shootSoundHowl = new Howl({ src: [shootSound], volume: 0.5 });
   const moveSoundHowl = new Howl({ src: [moveSound], volume: 0.5 });
@@ -212,6 +214,7 @@ const Index = () => {
               enemyDefeatedSoundHowl.play();
               // Remove enemy from the game
               setEnemies((prevEnemies) => prevEnemies.filter((e) => e !== enemy));
+              setScore((prevScore) => prevScore + 100); // Increase score when enemy is defeated
             }
           }
         });
@@ -308,6 +311,50 @@ const Index = () => {
       });
     };
 
+    // Render HUD
+    const renderHUD = () => {
+      context.fillStyle = 'white';
+      context.font = '20px Arial';
+      context.fillText(`Health: ${player.health}`, 10, 20);
+      context.fillText(`Ammo: ${weapons[currentWeapon].ammo}`, 10, 40);
+      context.fillText(`Score: ${score}`, 10, 60);
+    };
+
+    // Render minimap
+    const renderMinimap = () => {
+      const minimapScale = 0.2;
+      const minimapWidth = mapWidth * tileSize * minimapScale;
+      const minimapHeight = mapHeight * tileSize * minimapScale;
+
+      context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      context.fillRect(width - minimapWidth - 10, 10, minimapWidth, minimapHeight);
+
+      for (let y = 0; y < mapHeight; y++) {
+        for (let x = 0; x < mapWidth; x++) {
+          if (map[y][x] === 1) {
+            context.fillStyle = 'white';
+            context.fillRect(
+              width - minimapWidth - 10 + x * tileSize * minimapScale,
+              10 + y * tileSize * minimapScale,
+              tileSize * minimapScale,
+              tileSize * minimapScale
+            );
+          }
+        }
+      }
+
+      context.fillStyle = 'red';
+      context.beginPath();
+      context.arc(
+        width - minimapWidth - 10 + player.x * minimapScale,
+        10 + player.y * minimapScale,
+        5,
+        0,
+        2 * Math.PI
+      );
+      context.fill();
+    };
+
     // Add event listener for keyboard input
     window.addEventListener('keydown', handleKeyDown);
 
@@ -318,6 +365,8 @@ const Index = () => {
       updateEnemies();
       renderEnemies();
       renderPowerUps();
+      renderHUD();
+      renderMinimap();
       console.log("Rendering frame");
       requestAnimationFrame(gameLoop);
     };
@@ -328,7 +377,7 @@ const Index = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentLevel, levels, enemies, weapons, currentWeapon, powerUps]);
+  }, [currentLevel, levels, enemies, weapons, currentWeapon, powerUps, score]);
 
   const changeLevel = () => {
     setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
