@@ -36,6 +36,12 @@ const Index = () => {
 
   const [currentWeapon, setCurrentWeapon] = useState(0);
 
+  const [powerUps, setPowerUps] = useState([
+    { type: 'health', x: 150, y: 150, value: 25 },
+    { type: 'speed', x: 250, y: 250, value: 1.5, duration: 5000 },
+    { type: 'damage', x: 350, y: 350, value: 2, duration: 5000 },
+  ]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -61,6 +67,7 @@ const Index = () => {
       speed: 2,
       rotationSpeed: 0.05,
       health: 100,
+      activePowerUps: [],
     };
 
     // Map properties
@@ -153,6 +160,17 @@ const Index = () => {
         player.x = newX;
         player.y = newY;
       }
+
+      // Check for power-up collisions
+      powerUps.forEach((powerUp, index) => {
+        const dx = player.x - powerUp.x;
+        const dy = player.y - powerUp.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < tileSize / 2) {
+          applyPowerUp(powerUp);
+          setPowerUps((prevPowerUps) => prevPowerUps.filter((_, i) => i !== index));
+        }
+      });
     };
 
     const shoot = () => {
@@ -172,6 +190,36 @@ const Index = () => {
             }
           }
         });
+      }
+    };
+
+    const applyPowerUp = (powerUp) => {
+      switch (powerUp.type) {
+        case 'health':
+          player.health = Math.min(player.health + powerUp.value, 100);
+          break;
+        case 'speed':
+          player.speed *= powerUp.value;
+          player.activePowerUps.push({ type: 'speed', value: powerUp.value, duration: powerUp.duration });
+          setTimeout(() => {
+            player.speed /= powerUp.value;
+            player.activePowerUps = player.activePowerUps.filter((pu) => pu.type !== 'speed');
+          }, powerUp.duration);
+          break;
+        case 'damage':
+          weapons.forEach((weapon) => {
+            weapon.damage *= powerUp.value;
+          });
+          player.activePowerUps.push({ type: 'damage', value: powerUp.value, duration: powerUp.duration });
+          setTimeout(() => {
+            weapons.forEach((weapon) => {
+              weapon.damage /= powerUp.value;
+            });
+            player.activePowerUps = player.activePowerUps.filter((pu) => pu.type !== 'damage');
+          }, powerUp.duration);
+          break;
+        default:
+          break;
       }
     };
 
@@ -225,6 +273,16 @@ const Index = () => {
       });
     };
 
+    // Render power-ups
+    const renderPowerUps = () => {
+      powerUps.forEach((powerUp) => {
+        context.fillStyle = powerUp.type === 'health' ? 'red' : powerUp.type === 'speed' ? 'blue' : 'yellow';
+        context.beginPath();
+        context.arc(powerUp.x, powerUp.y, 10, 0, 2 * Math.PI);
+        context.fill();
+      });
+    };
+
     // Add event listener for keyboard input
     window.addEventListener('keydown', handleKeyDown);
 
@@ -234,6 +292,7 @@ const Index = () => {
       castRays();
       updateEnemies();
       renderEnemies();
+      renderPowerUps();
       console.log("Rendering frame");
       requestAnimationFrame(gameLoop);
     };
@@ -244,7 +303,7 @@ const Index = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentLevel, levels, enemies, weapons, currentWeapon]);
+  }, [currentLevel, levels, enemies, weapons, currentWeapon, powerUps]);
 
   const changeLevel = () => {
     setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
