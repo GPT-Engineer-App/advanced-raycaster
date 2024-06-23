@@ -5,7 +5,16 @@ const Index = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) {
+      console.error("Canvas not found");
+      return;
+    }
+
     const context = canvas.getContext('2d');
+    if (!context) {
+      console.error("Failed to get canvas context");
+      return;
+    }
 
     // Canvas dimensions
     const width = canvas.width;
@@ -94,6 +103,7 @@ const Index = () => {
         default:
           break;
       }
+      console.log(`Player position: (${player.x}, ${player.y}), angle: ${player.angle}`);
     };
 
     const movePlayer = (speed) => {
@@ -116,6 +126,7 @@ const Index = () => {
     const gameLoop = () => {
       context.clearRect(0, 0, width, height);
       castRays();
+      console.log("Rendering frame");
       requestAnimationFrame(gameLoop);
     };
 
