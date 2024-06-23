@@ -51,6 +51,18 @@ const Index = () => {
 
   const [score, setScore] = useState(0);
 
+  const [playerPosition, setPlayerPosition] = useState({ x: 400, y: 300 });
+
+  const player = {
+    x: playerPosition.x,
+    y: playerPosition.y,
+    angle: 0,
+    speed: 2,
+    rotationSpeed: 0.05,
+    health: 100,
+    activePowerUps: [],
+  };
+
   const backgroundMusicHowl = new Howl({ src: [backgroundMusic], loop: true, volume: 0.5 });
   const shootSoundHowl = new Howl({ src: [shootSound], volume: 0.5 });
   const moveSoundHowl = new Howl({ src: [moveSound], volume: 0.5 });
@@ -83,19 +95,6 @@ const Index = () => {
     // Canvas dimensions
     const width = canvas.width;
     const height = canvas.height;
-
-    const [playerPosition, setPlayerPosition] = useState({ x: width / 2, y: height / 2 });
-
-    // Player properties
-    const player = {
-      x: playerPosition.x,
-      y: playerPosition.y,
-      angle: 0,
-      speed: 2,
-      rotationSpeed: 0.05,
-      health: 100,
-      activePowerUps: [],
-    };
 
     // Map properties
     const map = levels[currentLevel];
@@ -403,9 +402,9 @@ const Index = () => {
 
   const changeLevel = () => {
     setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
-    setPlayerPosition({ x: width / 2, y: height / 2 });
-    player.x = width / 2;
-    player.y = height / 2;
+    setPlayerPosition({ x: 400, y: 300 });
+    player.x = 400;
+    player.y = 300;
     player.angle = 0;
     player.health = 100;
     setEnemies([
