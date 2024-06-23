@@ -17,6 +17,7 @@ const Index = () => {
       y: height / 2,
       angle: 0,
       speed: 2,
+      rotationSpeed: 0.05,
     };
 
     // Map properties
@@ -75,6 +76,31 @@ const Index = () => {
       context.stroke();
     };
 
+    // Handle keyboard input
+    const handleKeyDown = (event) => {
+      switch (event.key) {
+        case 'ArrowUp':
+          player.x += player.speed * Math.cos(player.angle);
+          player.y += player.speed * Math.sin(player.angle);
+          break;
+        case 'ArrowDown':
+          player.x -= player.speed * Math.cos(player.angle);
+          player.y -= player.speed * Math.sin(player.angle);
+          break;
+        case 'ArrowLeft':
+          player.angle -= player.rotationSpeed;
+          break;
+        case 'ArrowRight':
+          player.angle += player.rotationSpeed;
+          break;
+        default:
+          break;
+      }
+    };
+
+    // Add event listener for keyboard input
+    window.addEventListener('keydown', handleKeyDown);
+
     // Game loop
     const gameLoop = () => {
       context.clearRect(0, 0, width, height);
@@ -83,6 +109,11 @@ const Index = () => {
     };
 
     gameLoop();
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   return (
