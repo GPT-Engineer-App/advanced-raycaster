@@ -1,7 +1,27 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Index = () => {
   const canvasRef = useRef(null);
+  const [currentLevel, setCurrentLevel] = useState(0);
+  const [levels, setLevels] = useState([
+    [
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 0, 1, 0, 0, 1],
+      [1, 0, 1, 0, 1, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+    ],
+    [
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 1, 1, 1, 0, 1],
+      [1, 0, 1, 0, 0, 1, 0, 1],
+      [1, 0, 1, 0, 0, 1, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+    ],
+  ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,14 +50,7 @@ const Index = () => {
     };
 
     // Map properties
-    const map = [
-      [1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0, 0, 1],
-      [1, 0, 1, 0, 1, 0, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1],
-    ];
+    const map = levels[currentLevel];
     const mapWidth = map[0].length;
     const mapHeight = map.length;
     const tileSize = 64;
@@ -136,11 +149,16 @@ const Index = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [currentLevel, levels]);
+
+  const changeLevel = () => {
+    setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
+  };
 
   return (
     <div>
       <canvas ref={canvasRef} width="800" height="600" />
+      <button onClick={changeLevel}>Change Level</button>
     </div>
   );
 };
