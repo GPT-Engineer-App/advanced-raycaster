@@ -29,6 +29,13 @@ const Index = () => {
     { type: 'chasing', x: 300, y: 300, health: 100, speed: 2 },
   ]);
 
+  const [weapons, setWeapons] = useState([
+    { type: 'pistol', ammo: 10, damage: 10 },
+    { type: 'shotgun', ammo: 5, damage: 25 },
+  ]);
+
+  const [currentWeapon, setCurrentWeapon] = useState(0);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -120,6 +127,15 @@ const Index = () => {
         case 'ArrowRight':
           player.angle += player.rotationSpeed;
           break;
+        case ' ':
+          shoot();
+          break;
+        case '1':
+          setCurrentWeapon(0);
+          break;
+        case '2':
+          setCurrentWeapon(1);
+          break;
         default:
           break;
       }
@@ -136,6 +152,26 @@ const Index = () => {
       if (map[mapY] && map[mapY][mapX] === 0) {
         player.x = newX;
         player.y = newY;
+      }
+    };
+
+    const shoot = () => {
+      const weapon = weapons[currentWeapon];
+      if (weapon.ammo > 0) {
+        weapon.ammo -= 1;
+        const ray = castSingleRay(player.angle);
+        enemies.forEach((enemy) => {
+          const dx = enemy.x - ray.x;
+          const dy = enemy.y - ray.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < tileSize) {
+            enemy.health -= weapon.damage;
+            if (enemy.health <= 0) {
+              // Remove enemy from the game
+              setEnemies((prevEnemies) => prevEnemies.filter((e) => e !== enemy));
+            }
+          }
+        });
       }
     };
 
@@ -208,7 +244,7 @@ const Index = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentLevel, levels, enemies]);
+  }, [currentLevel, levels, enemies, weapons, currentWeapon]);
 
   const changeLevel = () => {
     setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
@@ -218,6 +254,10 @@ const Index = () => {
     <div>
       <canvas ref={canvasRef} width="800" height="600" />
       <button onClick={changeLevel}>Change Level</button>
+      <div>
+        <p>Current Weapon: {weapons[currentWeapon].type}</p>
+        <p>Ammo: {weapons[currentWeapon].ammo}</p>
+      </div>
     </div>
   );
 };
