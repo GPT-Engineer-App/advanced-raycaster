@@ -1,139 +1,95 @@
-import {
-  File,
-  Home,
-  LineChart,
-  ListFilter,
-  MoreHorizontal,
-  Package,
-  Package2,
-  PanelLeft,
-  PlusCircle,
-  Search,
-  Settings,
-  ShoppingCart,
-  Users2,
-} from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip"
+import React, { useEffect, useRef } from 'react';
 
 const Index = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+
+    // Canvas dimensions
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // Player properties
+    const player = {
+      x: width / 2,
+      y: height / 2,
+      angle: 0,
+      speed: 2,
+    };
+
+    // Map properties
+    const map = [
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 0, 0, 0, 0, 0, 1],
+      [1, 0, 1, 0, 1, 0, 0, 1],
+      [1, 0, 1, 0, 1, 0, 0, 1],
+      [1, 0, 0, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+    ];
+    const mapWidth = map[0].length;
+    const mapHeight = map.length;
+    const tileSize = 64;
+
+    // Raycasting function
+    const castRays = () => {
+      const numRays = 100;
+      const fov = Math.PI / 3;
+      const halfFov = fov / 2;
+      const angleStep = fov / numRays;
+
+      for (let i = 0; i < numRays; i++) {
+        const rayAngle = player.angle - halfFov + i * angleStep;
+        const ray = castSingleRay(rayAngle);
+        drawRay(ray, rayAngle, i);
+      }
+    };
+
+    // Cast a single ray
+    const castSingleRay = (angle) => {
+      const sin = Math.sin(angle);
+      const cos = Math.cos(angle);
+
+      for (let i = 0; i < 20; i++) {
+        const x = player.x + i * tileSize * cos;
+        const y = player.y + i * tileSize * sin;
+
+        const mapX = Math.floor(x / tileSize);
+        const mapY = Math.floor(y / tileSize);
+
+        if (map[mapY] && map[mapY][mapX] === 1) {
+          return { x, y };
+        }
+      }
+
+      return { x: player.x, y: player.y };
+    };
+
+    // Draw a ray
+    const drawRay = (ray, angle, i) => {
+      context.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+      context.beginPath();
+      context.moveTo(player.x, player.y);
+      context.lineTo(ray.x, ray.y);
+      context.stroke();
+    };
+
+    // Game loop
+    const gameLoop = () => {
+      context.clearRect(0, 0, width, height);
+      castRays();
+      requestAnimationFrame(gameLoop);
+    };
+
+    gameLoop();
+  }, []);
+
   return (
-    <div className="p-4">
-    <Tabs defaultValue="all">
-      <div className="flex items-center">
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="draft">Draft</TabsTrigger>
-          <TabsTrigger value="archived" className="hidden sm:flex">
-            Archived
-          </TabsTrigger>
-        </TabsList>
-        <div className="ml-auto flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1">
-                <ListFilter className="h-3.5 w-3.5" />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Filter
-                </span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Filter by</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuCheckboxItem checked>
-                Active
-              </DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>Draft</DropdownMenuCheckboxItem>
-              <DropdownMenuCheckboxItem>
-                Archived
-              </DropdownMenuCheckboxItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button size="sm" variant="outline" className="h-8 gap-1">
-            <File className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Export
-            </span>
-          </Button>
-          <Button size="sm" className="h-8 gap-1">
-            <PlusCircle className="h-3.5 w-3.5" />
-            <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-              Add Product
-            </span>
-          </Button>
-        </div>
-      </div>
-      <TabsContent value="all">
-        <Card x-chunk="dashboard-06-chunk-0">
-          <CardHeader>
-            <CardTitle>Products</CardTitle>
-            <CardDescription>
-              Manage your products and view their sales performance.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-          {/* <!-- ADD MOST OF THE CODE HERE --> */}
-          </CardContent>
-          <CardFooter>
-            <div className="text-xs text-muted-foreground">
-              Showing <strong>1-10</strong> of <strong>32</strong>{" "}
-              products
-            </div>
-          </CardFooter>
-        </Card>
-      </TabsContent>
-    </Tabs>
-  </div>
-  )
+    <div>
+      <canvas ref={canvasRef} width="800" height="600" />
+    </div>
+  );
 };
 
 export default Index;
