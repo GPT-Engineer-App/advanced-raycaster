@@ -80,12 +80,10 @@ const Index = () => {
     const handleKeyDown = (event) => {
       switch (event.key) {
         case 'ArrowUp':
-          player.x += player.speed * Math.cos(player.angle);
-          player.y += player.speed * Math.sin(player.angle);
+          movePlayer(player.speed);
           break;
         case 'ArrowDown':
-          player.x -= player.speed * Math.cos(player.angle);
-          player.y -= player.speed * Math.sin(player.angle);
+          movePlayer(-player.speed);
           break;
         case 'ArrowLeft':
           player.angle -= player.rotationSpeed;
@@ -95,6 +93,19 @@ const Index = () => {
           break;
         default:
           break;
+      }
+    };
+
+    const movePlayer = (speed) => {
+      const newX = player.x + speed * Math.cos(player.angle);
+      const newY = player.y + speed * Math.sin(player.angle);
+
+      const mapX = Math.floor(newX / tileSize);
+      const mapY = Math.floor(newY / tileSize);
+
+      if (map[mapY] && map[mapY][mapX] === 0) {
+        player.x = newX;
+        player.y = newY;
       }
     };
 
