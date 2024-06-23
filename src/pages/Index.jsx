@@ -1,4 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Howl, Howler } from 'howler';
+import backgroundMusic from '../assets/sounds/background-music.mp3';
+import shootSound from '../assets/sounds/shoot.mp3';
+import moveSound from '../assets/sounds/move.mp3';
+import enemyHitSound from '../assets/sounds/enemy-hit.mp3';
+import enemyDefeatedSound from '../assets/sounds/enemy-defeated.mp3';
+import ambientSound from '../assets/sounds/ambient.mp3';
 
 const Index = () => {
   const canvasRef = useRef(null);
@@ -41,6 +48,22 @@ const Index = () => {
     { type: 'speed', x: 250, y: 250, value: 1.5, duration: 5000 },
     { type: 'damage', x: 350, y: 350, value: 2, duration: 5000 },
   ]);
+
+  const backgroundMusicHowl = new Howl({ src: [backgroundMusic], loop: true, volume: 0.5 });
+  const shootSoundHowl = new Howl({ src: [shootSound], volume: 0.5 });
+  const moveSoundHowl = new Howl({ src: [moveSound], volume: 0.5 });
+  const enemyHitSoundHowl = new Howl({ src: [enemyHitSound], volume: 0.5 });
+  const enemyDefeatedSoundHowl = new Howl({ src: [enemyDefeatedSound], volume: 0.5 });
+  const ambientSoundHowl = new Howl({ src: [ambientSound], loop: true, volume: 0.5 });
+
+  useEffect(() => {
+    backgroundMusicHowl.play();
+    ambientSoundHowl.play();
+    return () => {
+      backgroundMusicHowl.stop();
+      ambientSoundHowl.stop();
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -123,10 +146,9 @@ const Index = () => {
     const handleKeyDown = (event) => {
       switch (event.key) {
         case 'ArrowUp':
-          movePlayer(player.speed);
-          break;
         case 'ArrowDown':
-          movePlayer(-player.speed);
+          moveSoundHowl.play();
+          movePlayer(event.key === 'ArrowUp' ? player.speed : -player.speed);
           break;
         case 'ArrowLeft':
           player.angle -= player.rotationSpeed;
@@ -135,6 +157,7 @@ const Index = () => {
           player.angle += player.rotationSpeed;
           break;
         case ' ':
+          shootSoundHowl.play();
           shoot();
           break;
         case '1':
@@ -184,7 +207,9 @@ const Index = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
           if (distance < tileSize) {
             enemy.health -= weapon.damage;
+            enemyHitSoundHowl.play();
             if (enemy.health <= 0) {
+              enemyDefeatedSoundHowl.play();
               // Remove enemy from the game
               setEnemies((prevEnemies) => prevEnemies.filter((e) => e !== enemy));
             }

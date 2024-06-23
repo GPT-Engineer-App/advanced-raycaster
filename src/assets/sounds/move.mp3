@@ -1,0 +1,16 @@
+Unfortunately, I can't create or upload audio files directly. However, I can guide you on how to add a sound effect file named "move.mp3" to your project.
+
+1. **Obtain the Sound File**: First, you need to have a sound file named "move.mp3". You can either create one using audio editing software or download a free sound effect from a website that offers royalty-free sounds.
+
+2. **Directory Structure**: Ensure that your project has the following directory structure:
+   ```
+   your-project/
+   ├── src/
+   │   ├── assets/
+   │   │   ├── sounds/
+   │   │   │   └── move.mp3
+   ```
+
+3. **Add the File**: Place the "move.mp3" file in the `src/assets/sounds/` directory.
+
+If you follow these steps, you will have successfully added the "move.mp3" sound effect to your project.
