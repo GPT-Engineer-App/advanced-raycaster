@@ -23,6 +23,12 @@ const Index = () => {
     ],
   ]);
 
+  const [enemies, setEnemies] = useState([
+    { type: 'stationary', x: 100, y: 100, health: 100, speed: 0 },
+    { type: 'patrolling', x: 200, y: 200, health: 100, speed: 1, direction: 1 },
+    { type: 'chasing', x: 300, y: 300, health: 100, speed: 2 },
+  ]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -47,6 +53,7 @@ const Index = () => {
       angle: 0,
       speed: 2,
       rotationSpeed: 0.05,
+      health: 100,
     };
 
     // Map properties
@@ -132,6 +139,56 @@ const Index = () => {
       }
     };
 
+    // Enemy AI logic
+    const updateEnemies = () => {
+      setEnemies((prevEnemies) =>
+        prevEnemies.map((enemy) => {
+          switch (enemy.type) {
+            case 'stationary':
+              // Stationary enemies do not move
+              break;
+            case 'patrolling':
+              // Patrolling enemies move back and forth
+              if (enemy.direction === 1) {
+                enemy.x += enemy.speed;
+                if (enemy.x > width - tileSize) {
+                  enemy.direction = -1;
+                }
+              } else {
+                enemy.x -= enemy.speed;
+                if (enemy.x < tileSize) {
+                  enemy.direction = 1;
+                }
+              }
+              break;
+            case 'chasing':
+              // Chasing enemies move towards the player
+              const dx = player.x - enemy.x;
+              const dy = player.y - enemy.y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              if (distance > 0) {
+                enemy.x += (dx / distance) * enemy.speed;
+                enemy.y += (dy / distance) * enemy.speed;
+              }
+              break;
+            default:
+              break;
+          }
+          return enemy;
+        })
+      );
+    };
+
+    // Render enemies
+    const renderEnemies = () => {
+      enemies.forEach((enemy) => {
+        context.fillStyle = 'green';
+        context.beginPath();
+        context.arc(enemy.x, enemy.y, 10, 0, 2 * Math.PI);
+        context.fill();
+      });
+    };
+
     // Add event listener for keyboard input
     window.addEventListener('keydown', handleKeyDown);
 
@@ -139,6 +196,8 @@ const Index = () => {
     const gameLoop = () => {
       context.clearRect(0, 0, width, height);
       castRays();
+      updateEnemies();
+      renderEnemies();
       console.log("Rendering frame");
       requestAnimationFrame(gameLoop);
     };
@@ -149,7 +208,7 @@ const Index = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentLevel, levels]);
+  }, [currentLevel, levels, enemies]);
 
   const changeLevel = () => {
     setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
