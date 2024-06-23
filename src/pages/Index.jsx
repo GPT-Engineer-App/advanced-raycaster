@@ -51,6 +51,18 @@ const Index = () => {
 
   const [score, setScore] = useState(0);
 
+  const [playerPosition, setPlayerPosition] = useState({ x: 400, y: 300 });
+
+  const player = {
+    x: playerPosition.x,
+    y: playerPosition.y,
+    angle: 0,
+    speed: 2,
+    rotationSpeed: 0.05,
+    health: 100,
+    activePowerUps: [],
+  };
+
   const backgroundMusicHowl = new Howl({ src: [backgroundMusic], loop: true, volume: 0.5 });
   const shootSoundHowl = new Howl({ src: [shootSound], volume: 0.5 });
   const moveSoundHowl = new Howl({ src: [moveSound], volume: 0.5 });
@@ -83,17 +95,6 @@ const Index = () => {
     // Canvas dimensions
     const width = canvas.width;
     const height = canvas.height;
-
-    // Player properties
-    const player = {
-      x: width / 2,
-      y: height / 2,
-      angle: 0,
-      speed: 2,
-      rotationSpeed: 0.05,
-      health: 100,
-      activePowerUps: [],
-    };
 
     // Map properties
     const map = levels[currentLevel];
@@ -184,6 +185,7 @@ const Index = () => {
       if (map[mapY] && map[mapY][mapX] === 0) {
         player.x = newX;
         player.y = newY;
+        setPlayerPosition({ x: newX, y: newY });
       }
 
       // Check for power-up collisions
@@ -353,6 +355,24 @@ const Index = () => {
         2 * Math.PI
       );
       context.fill();
+
+      // Draw exit tile
+      context.fillStyle = 'blue';
+      context.fillRect(
+        width - minimapWidth - 10 + (mapWidth - 2) * tileSize * minimapScale,
+        10 + (mapHeight - 2) * tileSize * minimapScale,
+        tileSize * minimapScale,
+        tileSize * minimapScale
+      );
+    };
+
+    const checkLevelCompletion = () => {
+      const exitTile = { x: mapWidth - 2, y: mapHeight - 2 }; // Example exit tile position
+      const playerTile = { x: Math.floor(player.x / tileSize), y: Math.floor(player.y / tileSize) };
+
+      if (playerTile.x === exitTile.x && playerTile.y === exitTile.y) {
+        changeLevel();
+      }
     };
 
     // Add event listener for keyboard input
@@ -367,6 +387,7 @@ const Index = () => {
       renderPowerUps();
       renderHUD();
       renderMinimap();
+      checkLevelCompletion();
       console.log("Rendering frame");
       requestAnimationFrame(gameLoop);
     };
@@ -377,10 +398,25 @@ const Index = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentLevel, levels, enemies, weapons, currentWeapon, powerUps, score]);
+  }, [currentLevel, levels, enemies, weapons, currentWeapon, powerUps, score, playerPosition]);
 
   const changeLevel = () => {
     setCurrentLevel((prevLevel) => (prevLevel + 1) % levels.length);
+    setPlayerPosition({ x: 400, y: 300 });
+    player.x = 400;
+    player.y = 300;
+    player.angle = 0;
+    player.health = 100;
+    setEnemies([
+      { type: 'stationary', x: 100, y: 100, health: 100, speed: 0 },
+      { type: 'patrolling', x: 200, y: 200, health: 100, speed: 1, direction: 1 },
+      { type: 'chasing', x: 300, y: 300, health: 100, speed: 2 },
+    ]);
+    setPowerUps([
+      { type: 'health', x: 150, y: 150, value: 25 },
+      { type: 'speed', x: 250, y: 250, value: 1.5, duration: 5000 },
+      { type: 'damage', x: 350, y: 350, value: 2, duration: 5000 },
+    ]);
   };
 
   return (
