@@ -1,0 +1,26 @@
+Unfortunately, I can't create or upload audio files directly. However, I can guide you on how to add a sound effect file named "shoot.mp3" to your project.
+
+1. **Find a Sound Effect**: You need to find a shooting sound effect. You can search for free sound effects on websites like:
+   - [Freesound](https://freesound.org/)
+   - [Zapsplat](https://www.zapsplat.com/)
+   - [SoundBible](http://soundbible.com/)
+
+2. **Download the Sound Effect**: Once you find a suitable shooting sound effect, download it in MP3 format.
+
+3. **Add to Project Directory**:
+   - Navigate to your project directory.
+   - Create the necessary folders if they don't already exist: `src/assets/sounds/`.
+   - Place the downloaded `shoot.mp3` file into the `sounds` directory.
+
+Your project directory structure should look something like this:
+```
+your-project/
+├── src/
+│   ├── assets/
+│   │   ├── sounds/
+│   │   │   └── shoot.mp3
+│   └── ...
+└── ...
+```
+
+By following these steps, you will have successfully added the `shoot.mp3` sound effect to your project.

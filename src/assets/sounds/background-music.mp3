@@ -1,0 +1,24 @@
+I'm unable to create or upload audio files directly. However, I can guide you on how to add a background music file named "background-music.mp3" to the `assets/sounds` directory in your project.
+
+1. **Obtain the MP3 File:**
+   - You need to have an MP3 file that you want to use as background music. You can either create one using audio editing software or download a royalty-free music file from the internet.
+
+2. **Create the Directory Structure:**
+   - Ensure that your project has the following directory structure:
+     ```
+     your-project/
+     └── src/
+         └── assets/
+             └── sounds/
+     ```
+
+3. **Add the MP3 File:**
+   - Place your `background-music.mp3` file into the `sounds` directory. The path should look like this:
+     ```
+     your-project/src/assets/sounds/background-music.mp3
+     ```
+
+4. **Verify the File:**
+   - Make sure the file is correctly named `background-music.mp3` and is in the correct directory.
+
+If you follow these steps, you will have successfully added the `background-music.mp3` file to the `assets/sounds` directory in your project.
